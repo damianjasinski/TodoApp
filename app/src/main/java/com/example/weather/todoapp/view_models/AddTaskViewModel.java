@@ -1,5 +1,7 @@
 package com.example.weather.todoapp.view_models;
 
+import android.widget.Toast;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -17,6 +19,7 @@ public class AddTaskViewModel extends ViewModel {
 
     private MutableLiveData<String> taskName = new MutableLiveData<>();
     private MutableLiveData<String> taskDesc = new MutableLiveData<>();
+    private MutableLiveData<Integer> chosenCategory = new MutableLiveData<>();
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     RealmResults<Category> RealmCategories;
     private final Realm realm;
@@ -26,14 +29,14 @@ public class AddTaskViewModel extends ViewModel {
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .allowQueriesOnUiThread(true)
                 .allowWritesOnUiThread(true)
-                .name("testRealm")
-                .inMemory()
+                .name("test4")
                 .build();
         realm = Realm.getInstance(config);
         RealmCategories = realm.where(Category.class).findAll();
         if (RealmCategories.size() > 0) {
            setCategories(RealmCategories);
         }
+        RealmCategories.addChangeListener(realmCategories -> categories.postValue(realmCategories));
     }
 
     public void setTaskName(String taskName) {
@@ -42,6 +45,10 @@ public class AddTaskViewModel extends ViewModel {
 
     public void setTaskDesc(String taskDesc) {
         this.taskDesc.setValue(taskDesc);
+    }
+
+    public void setChosenCategory(int categoryPosition) {
+        this.chosenCategory.setValue(categoryPosition);
     }
 
     public LiveData<String> getTaskName() {
@@ -56,8 +63,18 @@ public class AddTaskViewModel extends ViewModel {
         return categories;
     }
 
+    public LiveData<Integer> getChosenCategory() {
+        return chosenCategory;
+    }
+
     public void setCategories(List<Category> categories) {
         this.categories.setValue(categories);
+    }
+
+    public void clean() {
+        taskDesc.setValue("");
+        taskName.setValue("");
+        chosenCategory.setValue(-1);
     }
 
     public void addNewTask() {
@@ -67,6 +84,9 @@ public class AddTaskViewModel extends ViewModel {
             Task task = realm.createObject(Task.class, nextId);
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
+            Category category = realm.where(Category.class).equalTo("name", categories.getValue().get(chosenCategory.getValue()).toString()).findFirst();
+            task.setCategory(category);
+            System.out.println(category);
         });
     }
 

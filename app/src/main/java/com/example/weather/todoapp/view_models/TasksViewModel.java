@@ -1,25 +1,24 @@
 package com.example.weather.todoapp.view_models;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.weather.todoapp.models.Category;
 import com.example.weather.todoapp.models.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
-import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 public class TasksViewModel extends ViewModel {
 
     private MutableLiveData<List<Task>> tasks = new MutableLiveData<>(new ArrayList<>());
+    private MutableLiveData<String> filteringCategory = new MutableLiveData<>("");
     RealmResults<Task> RealmTasks;
     private final Realm realm;
 
@@ -27,7 +26,7 @@ public class TasksViewModel extends ViewModel {
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .allowQueriesOnUiThread(true)
                 .allowWritesOnUiThread(true)
-                .inMemory()
+                .name("test4")
                 .build();
         realm = Realm.getInstance(config);
         RealmTasks = realm.where(Task.class).findAll();
@@ -41,9 +40,31 @@ public class TasksViewModel extends ViewModel {
         return tasks;
     }
 
-//    public void setTasks(List<Task> tasks) {
-//        this.tasks.setValue(tasks);
+    public RealmResults<Category> getCategories() {
+        return realm.where(Category.class).findAll();
+    }
+
+    public LiveData<String> getFilteringCategory() {
+        return filteringCategory;
+    }
+
+    public void setFilteringCategory(String filteringCategory) {
+        if ("".equals(filteringCategory)) {
+            setTasks(RealmTasks);
+        } else {
+            List<Task> tasks = RealmTasks.stream().filter(task -> task.getCategory().getName().equals(filteringCategory)).collect(Collectors.toList());
+            setTasks(tasks);
+        }
+        this.filteringCategory.setValue(filteringCategory);
+    }
+
+//    public List<Task> getFilteredTasks() {
+//        return RealmTasks.stream().filter(task -> task.getCategory().getName().equals(filteringCategory.getValue())).collect(Collectors.toList());
 //    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks.setValue(tasks);
+    }
 //
 //    public void putTask(Task task) {
 //        List<Task> newTasks = tasks.getValue();

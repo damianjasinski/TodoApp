@@ -1,5 +1,7 @@
 package com.example.weather.todoapp.models;
 
+import androidx.annotation.NonNull;
+
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.LinkingObjects;
@@ -31,5 +33,11 @@ public class Category extends RealmObject {
 
     public RealmResults<Task> getTasks() {
         return tasks;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return name;
     }
 }

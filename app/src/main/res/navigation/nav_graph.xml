@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_addTaskFragment_to_tasksFragment"
             app:destination="@id/tasksFragment" />
+        <action
+            android:id="@+id/action_addTaskFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/tasksFragment"
@@ -21,6 +24,15 @@
         tools:layout="@layout/fragment_tasks" >
         <action
             android:id="@+id/action_tasksFragment_to_addTaskFragment"
+            app:destination="@id/addTaskFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addCategoryFragment"
+        android:name="com.example.weather.todoapp.AddCategoryFragment"
+        android:label="fragment_add_category"
+        tools:layout="@layout/fragment_add_category" >
+        <action
+            android:id="@+id/action_addCategoryFragment_to_addTaskFragment2"
             app:destination="@id/addTaskFragment" />
     </fragment>
 </navigation>
