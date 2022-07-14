@@ -45,9 +45,23 @@
                 android:id="@+id/task_desc_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:minHeight="100dp"
-                android:maxLength="300" />
+                android:maxLength="300"
+                android:minHeight="100dp" />
 
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/date_picker_layout"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:startIconDrawable="@drawable/ic_baseline_calendar_today_24"
+            android:hint="@string/select_date">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/date_picker_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -56,6 +70,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:hint="@string/select_category">
 
             <AutoCompleteTextView

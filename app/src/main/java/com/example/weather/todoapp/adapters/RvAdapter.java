@@ -21,6 +21,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
 
         private final TextView taskName;
         private final TextView taskDesc;
+        private final TextView taskCategory;
 
         public ViewHolder(View view) {
             super(view);
@@ -28,6 +29,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
 
             taskName = (TextView) view.findViewById(R.id.task_name);
             taskDesc = (TextView) view.findViewById(R.id.task_desc);
+            taskCategory = (TextView) view.findViewById(R.id.task_category);
         }
 
         public TextView getTaskName() {
@@ -36,6 +38,10 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
 
         public TextView getTaskDesc() {
             return taskDesc;
+        }
+
+        public TextView getTaskCategory() {
+            return taskCategory;
         }
     }
 
@@ -62,6 +68,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         // contents of the view with that element
         viewHolder.getTaskName().setText(tasks.get(position).getTitle());
         viewHolder.getTaskDesc().setText(tasks.get(position).getDesc());
+        viewHolder.getTaskCategory().setText(tasks.get(position).getCategory().getName());
     }
 
     // Return the size of your dataset (invoked by the layout manager)

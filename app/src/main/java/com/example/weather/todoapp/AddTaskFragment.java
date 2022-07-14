@@ -25,17 +25,23 @@ import com.example.weather.todoapp.view_models.AddTaskViewModel;
 import com.example.weather.todoapp.view_models.TasksViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.w3c.dom.Text;
+
 public class AddTaskFragment extends Fragment {
 
     private TasksViewModel tasksViewModel;
     private AddTaskViewModel addTaskViewModel;
     private TextInputEditText taskName;
     private TextInputEditText taskDesc;
+    private TextInputEditText datePicker;
     private AutoCompleteTextView categoriesDropdown;
     private Button createTaskButton;
     private Button addCategoryButton;
     int chosenCategoryPos = -1;
 
+    public AddTaskFragment() {
+        // Required empty public constructor
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
@@ -47,10 +53,6 @@ public class AddTaskFragment extends Fragment {
         }
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
-    }
-
-    public AddTaskFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -80,7 +82,6 @@ public class AddTaskFragment extends Fragment {
         createTaskBtnInit();
         addCategoryBtnInit();
         observeAddTaskVM();
-
         return root;
     }
 
