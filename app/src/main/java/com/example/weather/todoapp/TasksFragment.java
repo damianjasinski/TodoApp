@@ -1,15 +1,12 @@
 package com.example.weather.todoapp;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,11 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.weather.todoapp.adapters.RvAdapter;
+import com.example.weather.todoapp.databinding.FragmentTasksBinding;
 import com.example.weather.todoapp.models.Category;
 import com.example.weather.todoapp.models.Task;
 import com.example.weather.todoapp.view_models.TasksViewModel;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +26,7 @@ import java.util.stream.Collectors;
 
 public class TasksFragment extends Fragment {
 
-    private ExtendedFloatingActionButton addTaskBtn;
+    private FragmentTasksBinding binding;
     private TasksViewModel viewModel;
     String filteringCategory;
     private RvAdapter adapter;
@@ -47,10 +44,10 @@ public class TasksFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_tasks, container, false);
-        Toolbar toolbar = root.findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.toolbar_menu);
-        toolbar.setOnMenuItemClickListener(item -> {
+        binding = FragmentTasksBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+        binding.toolbar.inflateMenu(R.menu.toolbar_menu);
+        binding.toolbar.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.filter_action:
                     setupFilterDialog();
@@ -59,27 +56,25 @@ public class TasksFragment extends Fragment {
                     return false;
             }
         });
+
         //init view model
         viewModel = new ViewModelProvider(requireActivity()).get(TasksViewModel.class);
         List<Task> tasks = new ArrayList<>();
         observeDataChanges();
 
-        //inflate layout and other lifecycle stuff
-        RecyclerView recyclerView = root.findViewById(R.id.tasks_rv);
         //insert adapter into recyclerView
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
+        binding.tasksRv.setLayoutManager(layoutManager);
         adapter = new RvAdapter(tasks);
-        recyclerView.setAdapter(adapter);
+        binding.tasksRv.setAdapter(adapter);
 
-        addTaskBtn = root.findViewById(R.id.add_task_view);
         AddTaskBtnInit(root);
 
         return root;
     }
 
     private void AddTaskBtnInit(View root) {
-        addTaskBtn.setOnClickListener(new View.OnClickListener() {
+        binding.addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Navigation.findNavController(view).navigate(R.id.action_tasksFragment_to_addTaskFragment);

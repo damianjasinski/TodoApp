@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.weather.todoapp.R;
+import com.example.weather.todoapp.databinding.TaskItemBinding;
 import com.example.weather.todoapp.models.Task;
 
 import java.util.List;
