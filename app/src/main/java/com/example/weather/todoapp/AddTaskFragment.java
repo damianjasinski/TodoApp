@@ -19,6 +19,8 @@ import com.example.weather.todoapp.databinding.FragmentAddTaskBinding;
 import com.example.weather.todoapp.view_models.AddTaskViewModel;
 import com.example.weather.todoapp.view_models.TasksViewModel;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -66,19 +68,8 @@ public class AddTaskFragment extends Fragment {
                 chosenCategoryPos = i;
             }
         });
-        binding.datePickerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker()
-                        .setTitleText("Select date")
-                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-                        .build();
-                picker.show(requireActivity().getSupportFragmentManager(), "date_pick");
-                LocalDate selectedDate = Instant.ofEpochMilli(picker.getSelection()).atZone(ZoneId.systemDefault()).toLocalDate();
-                binding.datePickerView.setText(selectedDate.getDayOfMonth() + "/" + selectedDate.getMonth().toString().toLowerCase() + "/" + selectedDate.getYear());
-            }
-        });
         createTaskBtnInit();
+        dateTimePickInit();
         addCategoryBtnInit();
         observeAddTaskVM();
         return root;
@@ -101,6 +92,12 @@ public class AddTaskFragment extends Fragment {
             ArrayAdapter adapter = new ArrayAdapter(requireContext(), R.layout.category_dropdown_list_item, categories);
             binding.categorySelectView.setAdapter(adapter);
         });
+
+        addTaskViewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> {
+            LocalDate selectedDate = Instant.ofEpochMilli(Long.parseLong(date)).atZone(ZoneId.systemDefault()).toLocalDate();
+            String pickedTime = addTaskViewModel.getSelectedTime().getValue();
+            binding.datePickerView.setText(selectedDate.getDayOfMonth() + "/" + selectedDate.getMonth().toString().toLowerCase() + "/" + selectedDate.getYear() + " " + pickedTime);
+        });
     }
 
     private void createTaskBtnInit() {
@@ -117,6 +114,38 @@ public class AddTaskFragment extends Fragment {
                     addTaskViewModel.clean();
                     Navigation.findNavController(view).navigate(R.id.action_addTaskFragment_to_tasksFragment);
                 }
+            }
+        });
+    }
+
+    private void dateTimePickInit() {
+        binding.datePickerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker()
+                        .setTitleText("Select date")
+                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                        .build();
+                picker.show(requireActivity().getSupportFragmentManager(), "date_pick");
+
+                //select time
+                MaterialTimePicker timePicker =
+                        new MaterialTimePicker.Builder()
+                                .setTimeFormat(TimeFormat.CLOCK_12H)
+                                .setHour(12)
+                                .setMinute(10)
+                                .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
+                                .build();
+                timePicker.show(requireActivity().getSupportFragmentManager(), "tag");
+                timePicker.addOnPositiveButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        addTaskViewModel.setSelectedTime(timePicker.getHour() + ":" + timePicker.getMinute());
+                    }
+                });
+                picker.addOnPositiveButtonClickListener(x -> {
+                    addTaskViewModel.setSelectedDate(picker.getSelection().toString());
+                });
             }
         });
     }

@@ -21,9 +21,10 @@ public class AddTaskViewModel extends ViewModel {
     private MutableLiveData<String> taskDesc = new MutableLiveData<>();
     private MutableLiveData<Integer> chosenCategory = new MutableLiveData<>();
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
+    private MutableLiveData<String> selectedDate = new MutableLiveData<>();
+    private MutableLiveData<String> selectedTime = new MutableLiveData<>();
     RealmResults<Category> RealmCategories;
     private final Realm realm;
-
 
     {
         RealmConfiguration config = new RealmConfiguration.Builder()
@@ -69,6 +70,22 @@ public class AddTaskViewModel extends ViewModel {
 
     public void setCategories(List<Category> categories) {
         this.categories.setValue(categories);
+    }
+
+    public void setSelectedDate(String epoch) {
+        this.selectedDate.postValue(epoch);
+    }
+
+    public void setSelectedTime(String time) {
+        this.selectedTime.postValue(time);
+    }
+
+    public LiveData<String> getSelectedDate() {
+        return selectedDate;
+    }
+
+    public LiveData<String> getSelectedTime() {
+        return selectedTime;
     }
 
     public void clean() {
