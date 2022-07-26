@@ -137,12 +137,7 @@ public class AddTaskFragment extends Fragment {
                                 .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
                                 .build();
                 timePicker.show(requireActivity().getSupportFragmentManager(), "tag");
-                timePicker.addOnPositiveButtonClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        addTaskViewModel.setSelectedTime(timePicker.getHour() + ":" + timePicker.getMinute());
-                    }
-                });
+                timePicker.addOnPositiveButtonClickListener(view1 -> addTaskViewModel.setSelectedTime(timePicker.getHour() + ":" + timePicker.getMinute()));
                 picker.addOnPositiveButtonClickListener(x -> {
                     addTaskViewModel.setSelectedDate(picker.getSelection().toString());
                 });
