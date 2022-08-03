@@ -1,4 +1,4 @@
-package com.example.weather.todoapp;
+package com.example.weather.todoapp.fragments;
 
 import android.os.Bundle;
 
@@ -14,6 +14,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.weather.todoapp.R;
 import com.example.weather.todoapp.databinding.FragmentAddCategoryBinding;
 import com.example.weather.todoapp.models.Category;
 import com.example.weather.todoapp.view_models.AddCategoryViewModel;

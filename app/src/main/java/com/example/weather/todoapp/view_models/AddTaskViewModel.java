@@ -1,5 +1,7 @@
 package com.example.weather.todoapp.view_models;
 
+import android.app.Notification;
+import android.content.Context;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
@@ -7,8 +9,17 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.weather.todoapp.models.Category;
+import com.example.weather.todoapp.models.NotificationIdCounter;
 import com.example.weather.todoapp.models.Task;
+import com.example.weather.todoapp.notification.NotificationBuilder;
+import com.example.weather.todoapp.notification.NotificationScheduler;
+import com.example.weather.todoapp.util.DateConverter;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import io.realm.Realm;
@@ -21,8 +32,7 @@ public class AddTaskViewModel extends ViewModel {
     private MutableLiveData<String> taskDesc = new MutableLiveData<>();
     private MutableLiveData<Integer> chosenCategory = new MutableLiveData<>();
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
-    private MutableLiveData<String> selectedDate = new MutableLiveData<>();
-    private MutableLiveData<String> selectedTime = new MutableLiveData<>();
+    private MutableLiveData<LocalDateTime> selectedDateTime = new MutableLiveData<>();
     RealmResults<Category> RealmCategories;
     private final Realm realm;
 
@@ -35,7 +45,7 @@ public class AddTaskViewModel extends ViewModel {
         realm = Realm.getInstance(config);
         RealmCategories = realm.where(Category.class).findAll();
         if (RealmCategories.size() > 0) {
-           setCategories(RealmCategories);
+            setCategories(RealmCategories);
         }
         RealmCategories.addChangeListener(realmCategories -> categories.postValue(realmCategories));
     }
@@ -72,20 +82,13 @@ public class AddTaskViewModel extends ViewModel {
         this.categories.setValue(categories);
     }
 
-    public void setSelectedDate(String epoch) {
-        this.selectedDate.postValue(epoch);
+
+    public void setSelectedDateTime(LocalDateTime selectedDateTime) {
+        this.selectedDateTime.postValue(selectedDateTime);
     }
 
-    public void setSelectedTime(String time) {
-        this.selectedTime.postValue(time);
-    }
-
-    public LiveData<String> getSelectedDate() {
-        return selectedDate;
-    }
-
-    public LiveData<String> getSelectedTime() {
-        return selectedTime;
+    public LiveData<LocalDateTime> getSelectedDateTime() {
+        return selectedDateTime;
     }
 
     public void clean() {
@@ -101,10 +104,26 @@ public class AddTaskViewModel extends ViewModel {
             Task task = realm.createObject(Task.class, nextId);
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
+            task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(ZoneOffset.UTC));
             Category category = realm.where(Category.class).equalTo("name", categories.getValue().get(chosenCategory.getValue()).toString()).findFirst();
             task.setCategory(category);
             System.out.println(category);
         });
     }
+
+    public void setNotification(Context activity, String title) {
+        Notification notification = NotificationBuilder.getNotification(activity, title, DateConverter.getPrettyLocalDateTime(selectedDateTime.getValue().toEpochSecond(ZoneOffset.UTC)));
+        if (realm.where(NotificationIdCounter.class).findFirst() == null) {
+            realm.executeTransaction(r -> {
+                realm.createObject(NotificationIdCounter.class, "notifCounter");
+            });
+        }
+        NotificationIdCounter finalIdCounter = realm.where(NotificationIdCounter.class).findFirst();
+        NotificationScheduler.scheduleNotification(activity, notification, finalIdCounter.getNotificationCounter());
+        realm.executeTransaction(r -> {
+            finalIdCounter.setNotificationCounter(finalIdCounter.getNotificationCounter() + 1);
+        });
+    }
+
 
 }

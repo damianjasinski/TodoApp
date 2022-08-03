@@ -1,4 +1,4 @@
-package com.example.weather.todoapp;
+package com.example.weather.todoapp.fragments;
 
 import android.os.Bundle;
 
@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.weather.todoapp.R;
 import com.example.weather.todoapp.databinding.FragmentAddTaskBinding;
+import com.example.weather.todoapp.util.DateConverter;
 import com.example.weather.todoapp.view_models.AddTaskViewModel;
 import com.example.weather.todoapp.view_models.TasksViewModel;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -24,7 +27,10 @@ import com.google.android.material.timepicker.TimeFormat;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 public class AddTaskFragment extends Fragment {
 
@@ -93,10 +99,8 @@ public class AddTaskFragment extends Fragment {
             binding.categorySelectView.setAdapter(adapter);
         });
 
-        addTaskViewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> {
-            LocalDate selectedDate = Instant.ofEpochMilli(Long.parseLong(date)).atZone(ZoneId.systemDefault()).toLocalDate();
-            String pickedTime = addTaskViewModel.getSelectedTime().getValue();
-            binding.datePickerView.setText(selectedDate.getDayOfMonth() + "/" + selectedDate.getMonth().toString().toLowerCase() + "/" + selectedDate.getYear() + " " + pickedTime);
+        addTaskViewModel.getSelectedDateTime().observe(getViewLifecycleOwner(), date -> {
+            binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(date.toEpochSecond(ZoneOffset.UTC)));
         });
     }
 
@@ -111,6 +115,7 @@ public class AddTaskFragment extends Fragment {
                         addTaskViewModel.setChosenCategory(chosenCategoryPos);
                     }
                     addTaskViewModel.addNewTask();
+                    addTaskViewModel.setNotification(requireActivity(), addTaskViewModel.getTaskName().getValue());
                     addTaskViewModel.clean();
                     Navigation.findNavController(view).navigate(R.id.action_addTaskFragment_to_tasksFragment);
                 }
@@ -137,9 +142,11 @@ public class AddTaskFragment extends Fragment {
                                 .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
                                 .build();
                 timePicker.show(requireActivity().getSupportFragmentManager(), "tag");
-                timePicker.addOnPositiveButtonClickListener(view1 -> addTaskViewModel.setSelectedTime(timePicker.getHour() + ":" + timePicker.getMinute()));
                 picker.addOnPositiveButtonClickListener(x -> {
-                    addTaskViewModel.setSelectedDate(picker.getSelection().toString());
+                    LocalDate selectedDate = Instant.ofEpochMilli(Long.parseLong(picker.getSelection().toString())).atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDateTime combinedDateAndTime = LocalDateTime.of(selectedDate, LocalTime.of(timePicker.getHour(), timePicker.getMinute()));
+                    Log.i("time", combinedDateAndTime.toString());
+                    addTaskViewModel.setSelectedDateTime(combinedDateAndTime);
                 });
             }
         });

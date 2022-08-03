@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.weather.todoapp.R;
 import com.example.weather.todoapp.databinding.TaskItemBinding;
 import com.example.weather.todoapp.models.Task;
+import com.example.weather.todoapp.util.DateConverter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
@@ -23,14 +25,16 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         private final TextView taskName;
         private final TextView taskDesc;
         private final TextView taskCategory;
+        private final TextView taskDateTime;
 
         public ViewHolder(View view) {
             super(view);
             // Define click listener for the ViewHolder's View
 
-            taskName = (TextView) view.findViewById(R.id.task_name);
-            taskDesc = (TextView) view.findViewById(R.id.task_desc);
-            taskCategory = (TextView) view.findViewById(R.id.task_category);
+            taskName = view.findViewById(R.id.task_name);
+            taskDesc = view.findViewById(R.id.task_desc);
+            taskCategory = view.findViewById(R.id.task_category);
+            taskDateTime = view.findViewById(R.id.task_datetime);
         }
 
         public TextView getTaskName() {
@@ -43,6 +47,10 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
 
         public TextView getTaskCategory() {
             return taskCategory;
+        }
+
+        public TextView getTaskDateTime() {
+            return taskDateTime;
         }
     }
 
@@ -70,6 +78,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         viewHolder.getTaskName().setText(tasks.get(position).getTitle());
         viewHolder.getTaskDesc().setText(tasks.get(position).getDesc());
         viewHolder.getTaskCategory().setText(tasks.get(position).getCategory().getName());
+        viewHolder.getTaskDateTime().setText(DateConverter.getPrettyLocalDateTime(tasks.get(position).getExecDateTimeEpoch()));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

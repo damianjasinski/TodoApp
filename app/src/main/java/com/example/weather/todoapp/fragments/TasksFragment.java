@@ -1,4 +1,4 @@
-package com.example.weather.todoapp;
+package com.example.weather.todoapp.fragments;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.weather.todoapp.R;
 import com.example.weather.todoapp.adapters.RvAdapter;
 import com.example.weather.todoapp.databinding.FragmentTasksBinding;
 import com.example.weather.todoapp.models.Category;
