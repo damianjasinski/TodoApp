@@ -2,6 +2,7 @@ package com.example.weather.todoapp.view_models;
 
 import android.app.Notification;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
@@ -28,6 +29,7 @@ import io.realm.RealmResults;
 
 public class AddTaskViewModel extends ViewModel {
 
+    private ZoneOffset zoneOffset = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
     private MutableLiveData<String> taskName = new MutableLiveData<>();
     private MutableLiveData<String> taskDesc = new MutableLiveData<>();
     private MutableLiveData<Integer> chosenCategory = new MutableLiveData<>();
@@ -104,7 +106,8 @@ public class AddTaskViewModel extends ViewModel {
             Task task = realm.createObject(Task.class, nextId);
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
-            task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(ZoneOffset.UTC));
+
+            task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(zoneOffset));
             Category category = realm.where(Category.class).equalTo("name", categories.getValue().get(chosenCategory.getValue()).toString()).findFirst();
             task.setCategory(category);
             System.out.println(category);
@@ -112,14 +115,14 @@ public class AddTaskViewModel extends ViewModel {
     }
 
     public void setNotification(Context activity, String title) {
-        Notification notification = NotificationBuilder.getNotification(activity, title, DateConverter.getPrettyLocalDateTime(selectedDateTime.getValue().toEpochSecond(ZoneOffset.UTC)));
+        Notification notification = NotificationBuilder.getNotification(activity, title, DateConverter.getPrettyLocalDateTime(selectedDateTime.getValue().toEpochSecond(zoneOffset)));
         if (realm.where(NotificationIdCounter.class).findFirst() == null) {
             realm.executeTransaction(r -> {
                 realm.createObject(NotificationIdCounter.class, "notifCounter");
             });
         }
         NotificationIdCounter finalIdCounter = realm.where(NotificationIdCounter.class).findFirst();
-        NotificationScheduler.scheduleNotification(activity, notification, finalIdCounter.getNotificationCounter());
+        NotificationScheduler.scheduleNotification(activity, notification, finalIdCounter.getNotificationCounter(), selectedDateTime.getValue().toEpochSecond(zoneOffset));
         realm.executeTransaction(r -> {
             finalIdCounter.setNotificationCounter(finalIdCounter.getNotificationCounter() + 1);
         });

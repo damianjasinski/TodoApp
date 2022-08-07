@@ -34,6 +34,7 @@ import java.time.ZoneOffset;
 
 public class AddTaskFragment extends Fragment {
 
+    private ZoneOffset zoneOffset = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
     private FragmentAddTaskBinding binding;
     private TasksViewModel tasksViewModel;
     private AddTaskViewModel addTaskViewModel;
@@ -100,7 +101,7 @@ public class AddTaskFragment extends Fragment {
         });
 
         addTaskViewModel.getSelectedDateTime().observe(getViewLifecycleOwner(), date -> {
-            binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(date.toEpochSecond(ZoneOffset.UTC)));
+            binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(date.toEpochSecond(zoneOffset)));
         });
     }
 

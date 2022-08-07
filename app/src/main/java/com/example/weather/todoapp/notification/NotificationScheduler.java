@@ -10,15 +10,14 @@ import android.util.Log;
 
 public class NotificationScheduler {
 
-    public static void scheduleNotification(Context activity, Notification notification, Integer notificationId) {
+    public static void scheduleNotification(Context activity, Notification notification, Integer notificationId, Long epochTime) {
         Intent notificationIntent = new Intent(activity, MyNotificationPublisher.class);
         notificationIntent.putExtra("notificationId", notificationId);
         notificationIntent.putExtra("notification", notification);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        long futureInMillis = SystemClock.elapsedRealtime() + 5000;
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
         assert alarmManager != null;
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, futureInMillis, pendingIntent);
-        Log.i("Notification", "scheduled with id: " + notificationId);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, epochTime * 1000, pendingIntent);
+        Log.i("Notification", "scheduled with id: " + notificationId + "epoch time is: " + epochTime );
     }
 }
