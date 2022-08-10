@@ -3,22 +3,24 @@ package com.example.weather.todoapp.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.weather.todoapp.R;
-import com.example.weather.todoapp.databinding.TaskItemBinding;
+import com.example.weather.todoapp.fragments.TasksFragmentDirections;
 import com.example.weather.todoapp.models.Task;
 import com.example.weather.todoapp.util.DateConverter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
 
     private List<Task> tasks;
+    private View context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -26,6 +28,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         private final TextView taskDesc;
         private final TextView taskCategory;
         private final TextView taskDateTime;
+        private final Button editTaskButton;
 
         public ViewHolder(View view) {
             super(view);
@@ -35,6 +38,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
             taskDesc = view.findViewById(R.id.task_desc);
             taskCategory = view.findViewById(R.id.task_category);
             taskDateTime = view.findViewById(R.id.task_datetime);
+            editTaskButton = view.findViewById(R.id.edit_button);
         }
 
         public TextView getTaskName() {
@@ -52,6 +56,11 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         public TextView getTaskDateTime() {
             return taskDateTime;
         }
+
+        public Button getEditTaskButton() {
+            return editTaskButton;
+        }
+
     }
 
     public RvAdapter(List<Task> tasks) {
@@ -65,7 +74,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.task_item, viewGroup, false);
-
+        this.context = view;
         return new ViewHolder(view);
     }
 
@@ -79,6 +88,12 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         viewHolder.getTaskDesc().setText(tasks.get(position).getDesc());
         viewHolder.getTaskCategory().setText(tasks.get(position).getCategory().getName());
         viewHolder.getTaskDateTime().setText(DateConverter.getPrettyLocalDateTime(tasks.get(position).getExecDateTimeEpoch()));
+        viewHolder.getEditTaskButton().setOnClickListener(x -> {
+            TasksFragmentDirections.EditTaskAction action = TasksFragmentDirections.editTaskAction();
+            action.setTaskIdToEdit(tasks.get(position).getId());
+            Navigation.findNavController(context).navigate(action);
+        });
+        //todo passing ID to edit task fragment, edit task fragment layout is not completed yet
     }
 
     // Return the size of your dataset (invoked by the layout manager)

@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_tasksFragment_to_addTaskFragment"
             app:destination="@id/addTaskFragment" />
+        <action
+            android:id="@+id/EditTaskAction"
+            app:destination="@id/editTaskFragment" />
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
@@ -34,5 +37,15 @@
         <action
             android:id="@+id/action_addCategoryFragment_to_addTaskFragment2"
             app:destination="@id/addTaskFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editTaskFragment"
+        android:name="com.example.weather.todoapp.fragments.EditTaskFragment"
+        android:label="fragment_edit_task"
+        tools:layout="@layout/fragment_edit_task" >
+        <argument
+            android:name="taskIdToEdit"
+            app:argType="long"
+            android:defaultValue="0L" />
     </fragment>
 </navigation>

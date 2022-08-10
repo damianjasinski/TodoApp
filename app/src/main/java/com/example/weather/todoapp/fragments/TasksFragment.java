@@ -70,7 +70,6 @@ public class TasksFragment extends Fragment {
         binding.tasksRv.setAdapter(adapter);
 
         AddTaskBtnInit(root);
-
         return root;
     }
 

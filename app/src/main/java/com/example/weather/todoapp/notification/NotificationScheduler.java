@@ -17,7 +17,8 @@ public class NotificationScheduler {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(activity, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
         assert alarmManager != null;
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, epochTime * 1000, pendingIntent);
+        //trigger 1h before
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, (epochTime - 3600) * 1000, pendingIntent);
         Log.i("Notification", "scheduled with id: " + notificationId + "epoch time is: " + epochTime );
     }
 }

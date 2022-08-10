@@ -137,9 +137,9 @@ public class AddTaskFragment extends Fragment {
                 //select time
                 MaterialTimePicker timePicker =
                         new MaterialTimePicker.Builder()
-                                .setTimeFormat(TimeFormat.CLOCK_12H)
+                                .setTimeFormat(TimeFormat.CLOCK_24H)
                                 .setHour(12)
-                                .setMinute(10)
+                                .setMinute(00)
                                 .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
                                 .build();
                 timePicker.show(requireActivity().getSupportFragmentManager(), "tag");
