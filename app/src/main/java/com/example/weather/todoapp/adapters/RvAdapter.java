@@ -89,7 +89,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         viewHolder.getTaskCategory().setText(tasks.get(position).getCategory().getName());
         viewHolder.getTaskDateTime().setText(DateConverter.getPrettyLocalDateTime(tasks.get(position).getExecDateTimeEpoch()));
         viewHolder.getEditTaskButton().setOnClickListener(x -> {
-            TasksFragmentDirections.EditTaskAction action = TasksFragmentDirections.editTaskAction();
+            TasksFragmentDirections.ActionEditTaskAction action = TasksFragmentDirections.actionEditTaskAction();
             action.setTaskIdToEdit(tasks.get(position).getId());
             Navigation.findNavController(context).navigate(action);
         });

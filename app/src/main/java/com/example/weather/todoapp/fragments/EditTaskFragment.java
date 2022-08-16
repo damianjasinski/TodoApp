@@ -2,20 +2,59 @@ package com.example.weather.todoapp.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.weather.todoapp.R;
+import com.example.weather.todoapp.databinding.FragmentAddTaskBinding;
+import com.example.weather.todoapp.databinding.FragmentEditTaskBinding;
+import com.example.weather.todoapp.util.DateConverter;
+import com.example.weather.todoapp.view_models.EditTaskViewModel;
+import com.example.weather.todoapp.view_models.TasksViewModel;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 public class EditTaskFragment extends Fragment {
+
+    private ZoneOffset zoneOffset = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
+    private FragmentEditTaskBinding binding;
+    private EditTaskViewModel editTaskViewModel;
+    int chosenCategoryPos = -1;
 
     public EditTaskFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        // Save current view model state
+        editTaskViewModel.setTaskName(binding.taskNameView.getText().toString());
+        editTaskViewModel.setTaskDesc(binding.taskDescView.getText().toString());
+        if (binding.categorySelectView.getListSelection() != ListView.INVALID_POSITION) {
+            editTaskViewModel.setChosenCategory(binding.categorySelectView.getListSelection());
+        }
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,6 +65,127 @@ public class EditTaskFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_edit_task, container, false);
+        binding = FragmentEditTaskBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+        editTaskViewModel = new ViewModelProvider(requireActivity()).get(EditTaskViewModel.class);
+        long taskId = EditTaskFragmentArgs.fromBundle(getArguments()).getTaskIdToEdit();
+        editTaskViewModel.getAndSetTaskToEdit(taskId);
+        binding.categorySelectView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                chosenCategoryPos = i;
+            }
+        });
+        observeEditTaskVM();
+        addCategoryBtnInit();
+        dateTimePickInit();
+        updateTaskBtnInit();
+        return root;
     }
+
+    private void addCategoryBtnInit() {
+        binding.createCategoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (chosenCategoryPos == -1) {
+                    editTaskViewModel.setChosenCategory(binding.categorySelectView.getListSelection());
+                }
+                Navigation.findNavController(view).navigate(R.id.action_editTaskFragment_to_addCategoryFragment);
+            }
+        });
+    }
+
+
+    private void observeEditTaskVM() {
+        editTaskViewModel.getTaskName().observe(getViewLifecycleOwner(), taskName -> {
+            binding.taskNameView.setText(taskName);
+        });
+
+        editTaskViewModel.getTaskDesc().observe(getViewLifecycleOwner(), taskDesc -> {
+            binding.taskDescView.setText(taskDesc);
+        });
+
+        editTaskViewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
+            ArrayAdapter adapter = new ArrayAdapter(requireContext(), R.layout.category_dropdown_list_item, categories);
+            binding.categorySelectView.setAdapter(adapter);
+            binding.categorySelectView.setText(editTaskViewModel.getCategories().getValue().get(editTaskViewModel.getChosenCategory().getValue()).toString(), false);
+            chosenCategoryPos = editTaskViewModel.getChosenCategory().getValue();
+        });
+
+        editTaskViewModel.getChosenCategory().observe(getViewLifecycleOwner(), chosenCategoryPosition -> {
+            binding.categorySelectView.setListSelection(chosenCategoryPosition);
+        });
+
+
+        editTaskViewModel.getSelectedDateTime().observe(getViewLifecycleOwner(), date -> {
+            binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(date.toEpochSecond(zoneOffset)));
+        });
+    }
+
+    private void dateTimePickInit() {
+        binding.datePickerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker()
+                        .setTitleText("Select date")
+                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                        .build();
+                picker.show(requireActivity().getSupportFragmentManager(), "date_pick");
+
+                //select time
+                MaterialTimePicker timePicker =
+                        new MaterialTimePicker.Builder()
+                                .setTimeFormat(TimeFormat.CLOCK_24H)
+                                .setHour(12)
+                                .setMinute(00)
+                                .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
+                                .build();
+                timePicker.show(requireActivity().getSupportFragmentManager(), "tag");
+                picker.addOnPositiveButtonClickListener(x -> {
+                    LocalDate selectedDate = Instant.ofEpochMilli(Long.parseLong(picker.getSelection().toString())).atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDateTime combinedDateAndTime = LocalDateTime.of(selectedDate, LocalTime.of(timePicker.getHour(), timePicker.getMinute()));
+                    Log.i("time", combinedDateAndTime.toString());
+                    editTaskViewModel.setSelectedDateTime(combinedDateAndTime);
+                });
+            }
+        });
+    }
+
+    private void updateTaskBtnInit() {
+        binding.createTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (validateFields()) {
+                    editTaskViewModel.setTaskName(binding.taskNameView.getText().toString());
+                    editTaskViewModel.setTaskDesc(binding.taskDescView.getText().toString());
+                    if (chosenCategoryPos != -1) {
+                        editTaskViewModel.setChosenCategory(chosenCategoryPos);
+                    }
+                    editTaskViewModel.updateTask();
+                    editTaskViewModel.setNotification(requireActivity(), editTaskViewModel.getTaskName().getValue());
+                    editTaskViewModel.clean();
+                    Navigation.findNavController(view).navigate(R.id.action_editTaskFragment_to_tasksFragment);
+                }
+            }
+        });
+    }
+
+    private boolean validateFields() {
+        boolean isOk = true;
+        if (binding.taskNameView.getText().length() == 0) {
+            isOk = false;
+            binding.taskNameView.setError("Can't be empty!");
+        }
+        if (binding.taskDescView.getText().length() == 0) {
+            isOk = false;
+            binding.taskDescView.setError("Can't be empty!");
+        }
+        if (chosenCategoryPos == -1) {
+            Toast.makeText(requireActivity(), "Select category or add new if it's your first!", Toast.LENGTH_LONG).show();
+            isOk = false;
+            binding.categorySelectView.setError("Select one!");
+        }
+        return isOk;
+    }
+
 }

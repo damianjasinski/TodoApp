@@ -15,4 +15,5 @@
     <string name="task_name">Task name</string>
     <string name="select_date">Select task deadline</string>
     <string name="datetime">Datetime</string>
+    <string name="update_task">Update</string>
 </resources>

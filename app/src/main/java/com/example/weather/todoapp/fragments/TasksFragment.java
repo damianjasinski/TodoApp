@@ -19,7 +19,6 @@ import com.example.weather.todoapp.databinding.FragmentTasksBinding;
 import com.example.weather.todoapp.models.Category;
 import com.example.weather.todoapp.models.Task;
 import com.example.weather.todoapp.view_models.TasksViewModel;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;

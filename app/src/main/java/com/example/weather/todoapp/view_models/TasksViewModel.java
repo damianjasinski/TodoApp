@@ -8,12 +8,15 @@ import com.example.weather.todoapp.models.Category;
 import com.example.weather.todoapp.models.Task;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class TasksViewModel extends ViewModel {
 
@@ -29,9 +32,9 @@ public class TasksViewModel extends ViewModel {
                 .name("test4")
                 .build();
         realm = Realm.getInstance(config);
-        RealmTasks = realm.where(Task.class).findAll();
+        RealmTasks = realm.where(Task.class).sort("execDateTimeEpoch", Sort.DESCENDING).findAll();
         if (RealmTasks.size() > 0) {
-            tasks.postValue(RealmTasks);
+            setTasks(RealmTasks);
         }
         RealmTasks.addChangeListener(realmTasks -> tasks.postValue(realmTasks));
     }
@@ -65,11 +68,6 @@ public class TasksViewModel extends ViewModel {
     public void setTasks(List<Task> tasks) {
         this.tasks.setValue(tasks);
     }
-//
-//    public void putTask(Task task) {
-//        List<Task> newTasks = tasks.getValue();
-//        newTasks.add(task);
-//        this.tasks.postValue(newTasks);
-//    }
+
 
 }

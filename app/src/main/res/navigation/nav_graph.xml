@@ -26,8 +26,9 @@
             android:id="@+id/action_tasksFragment_to_addTaskFragment"
             app:destination="@id/addTaskFragment" />
         <action
-            android:id="@+id/EditTaskAction"
-            app:destination="@id/editTaskFragment" />
+            android:id="@+id/action_EditTaskAction"
+            app:destination="@id/editTaskFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
@@ -47,5 +48,11 @@
             android:name="taskIdToEdit"
             app:argType="long"
             android:defaultValue="0L" />
+        <action
+            android:id="@+id/action_editTaskFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment" />
+        <action
+            android:id="@+id/action_editTaskFragment_to_tasksFragment"
+            app:destination="@id/tasksFragment" />
     </fragment>
 </navigation>
