@@ -18,4 +18,6 @@
     <string name="update_task">Update</string>
     <string name="add_attachment">Attach</string>
     <string name="attachment">Attachment:</string>
+    <string name="add_notify_1h_before">Add notify 1h before</string>
+    <string name="created_at">Created at:</string>
 </resources>

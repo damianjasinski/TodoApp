@@ -5,13 +5,14 @@
       <map>
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.318" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/drawable/ic_add_24.xml" value="0.318" />
+        <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/drawable/ic_baseline_attach_file_24.xml" value="0.2435" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/drawable/ic_baseline_playlist_add_24.xml" value="0.318" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/activity_main.xml" value="0.3463541666666667" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/category_dropdown_list_item.xml" value="0.2796875" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/fragment_add_category.xml" value="0.25" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/fragment_add_task.xml" value="0.33" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/fragment_blank.xml" value="0.43931159420289856" />
-        <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/fragment_edit_task.xml" value="0.21808510638297873" />
+        <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/fragment_edit_task.xml" value="0.5" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/fragment_tasks.xml" value="0.33" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/layout/task_item.xml" value="0.33" />
         <entry key="..\:/programming/STUDIA/sem6/Mobilne/TodoApp/app/src/main/res/menu/toolbar_menu.xml" value="0.4484375" />

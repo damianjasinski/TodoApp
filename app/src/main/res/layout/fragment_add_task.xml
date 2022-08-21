@@ -84,6 +84,14 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <CheckBox
+            android:id="@+id/add_notify_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:clickable="false"
+            android:text="@string/add_notify_1h_before" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

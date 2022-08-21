@@ -22,12 +22,6 @@ public class Task extends RealmObject {
     boolean isNotificationOn = true;
 
     public Task(String title, String desc) {
-        this.title = title;
-        this.desc = desc;
-        this.execDateTimeEpoch = execDateTimeEpoch;
-//        this.creationDateTimeEpoch = creatio nDateTimeEpoch;
-//        this.isDone = isDone;
-//        this.isNotificationOn = isNotificationOn;
     }
 
     public Task() {

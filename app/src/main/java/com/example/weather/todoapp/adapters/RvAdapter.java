@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,6 +30,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
         private final TextView taskCategory;
         private final TextView taskDateTime;
         private final Button editTaskButton;
+        private final ImageView isAttached;
 
         public ViewHolder(View view) {
             super(view);
@@ -39,6 +41,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
             taskCategory = view.findViewById(R.id.task_category);
             taskDateTime = view.findViewById(R.id.task_datetime);
             editTaskButton = view.findViewById(R.id.edit_button);
+            isAttached = view.findViewById(R.id.is_attached);
         }
 
         public TextView getTaskName() {
@@ -59,6 +62,10 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
 
         public Button getEditTaskButton() {
             return editTaskButton;
+        }
+
+        public ImageView getIsAttached() {
+            return isAttached;
         }
 
     }
@@ -93,7 +100,9 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
             action.setTaskIdToEdit(tasks.get(position).getId());
             Navigation.findNavController(context).navigate(action);
         });
-        //todo passing ID to edit task fragment, edit task fragment layout is not completed yet
+        if (tasks.get(position).getUri() != null) {
+            viewHolder.getIsAttached().setImageResource(R.drawable.ic_baseline_attach_file_24);
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)

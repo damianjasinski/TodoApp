@@ -142,16 +142,19 @@ public class AddTaskFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (validateFields()) {
-                    FileCopyClass fileCopyClass = new FileCopyClass(getContext());
-                    addTaskViewModel.setAttachmentUri(fileCopyClass.copyAttachmenToExternal(imageUri));
-
+                    if (imageUri != null) {
+                        FileCopyClass fileCopyClass = new FileCopyClass(getContext());
+                        addTaskViewModel.setAttachmentUri(fileCopyClass.copyAttachmenToExternal(imageUri));
+                    }
                     addTaskViewModel.setTaskName(binding.taskNameView.getText().toString());
                     addTaskViewModel.setTaskDesc(binding.taskDescView.getText().toString());
                     if (chosenCategoryPos != -1) {
                         addTaskViewModel.setChosenCategory(chosenCategoryPos);
                     }
                     addTaskViewModel.addNewTask();
-                    addTaskViewModel.setNotification(requireActivity(), addTaskViewModel.getTaskName().getValue());
+                    if (binding.addNotifyCheckbox.isChecked()) {
+                        addTaskViewModel.setNotification(requireActivity(), addTaskViewModel.getTaskName().getValue());
+                    }
                     addTaskViewModel.clean();
                     Navigation.findNavController(view).navigate(R.id.action_addTaskFragment_to_tasksFragment);
                 }

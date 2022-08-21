@@ -93,7 +93,6 @@ public class AddTaskViewModel extends ViewModel {
     }
 
 
-
     public void setCategories(List<Category> categories) {
         this.categories.setValue(categories);
     }
@@ -118,11 +117,13 @@ public class AddTaskViewModel extends ViewModel {
             Number maxId = realm.where(Task.class).max("id");
             Long nextId = (maxId == null) ? 1 : maxId.longValue() + 1;
             Task task = realm.createObject(Task.class, nextId);
+            if (getAttachmentUri().getValue() != null) {
+                task.setUri(getAttachmentUri().getValue().toString());
+            }
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
-            task.setUri(getAttachmentUri().getValue().toString());
-
             task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(zoneOffset));
+            task.setCreationDateTimeEpoch(LocalDateTime.now().toEpochSecond(zoneOffset));
             Category category = realm.where(Category.class).equalTo("name", categories.getValue().get(chosenCategory.getValue()).toString()).findFirst();
             task.setCategory(category);
             System.out.println(category);
@@ -142,7 +143,6 @@ public class AddTaskViewModel extends ViewModel {
             finalIdCounter.setNotificationCounter(finalIdCounter.getNotificationCounter() + 1);
         });
     }
-
 
 
 }

@@ -131,8 +131,12 @@ public class EditTaskFragment extends Fragment {
             binding.categorySelectView.setListSelection(chosenCategoryPosition);
         });
 
-        editTaskViewModel.getSelectedDateTime().observe(getViewLifecycleOwner(), date -> {
-            binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(date.toEpochSecond(zoneOffset)));
+        editTaskViewModel.getSelectedDateTime().observe(getViewLifecycleOwner(), dateTime -> {
+            binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(dateTime.toEpochSecond(zoneOffset)));
+        });
+
+        editTaskViewModel.getCreationDateTime().observe(getViewLifecycleOwner(), dateTime -> {
+            binding.createdAt.setText(binding.createdAt.getText() + " " + DateConverter.getPrettyLocalDateTime(dateTime.toEpochSecond(zoneOffset)));
         });
 
         editTaskViewModel.getTaskUri().observe(getViewLifecycleOwner(), uri -> {

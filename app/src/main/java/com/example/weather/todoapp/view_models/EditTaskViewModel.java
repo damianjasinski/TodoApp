@@ -34,6 +34,7 @@ public class EditTaskViewModel extends ViewModel {
     private MutableLiveData<Integer> chosenCategory = new MutableLiveData<>();
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     private MutableLiveData<LocalDateTime> selectedDateTime = new MutableLiveData<>();
+    private MutableLiveData<LocalDateTime> creationDateTime = new MutableLiveData<>();
     public RealmResults<Category> RealmCategories;
     private long taskId;
     private final Realm realm;
@@ -65,10 +66,15 @@ public class EditTaskViewModel extends ViewModel {
         setTaskUri(taskToEdit.getUri());
         setChosenCategory(RealmCategories.indexOf(taskToEdit.getCategory()));
         setSelectedDateTime(DateConverter.epochToDateTime(taskToEdit.getExecDateTimeEpoch()));
+        setCreationDateTime(DateConverter.epochToDateTime(taskToEdit.getCreationDateTimeEpoch()));
     }
 
     public void setSelectedDateTime(LocalDateTime selectedDateTime) {
         this.selectedDateTime.postValue(selectedDateTime);
+    }
+
+    public void setCreationDateTime(LocalDateTime creationDateTime) {
+        this.creationDateTime.postValue(creationDateTime);
     }
 
     public void setTaskUri(String taskUri) {
@@ -111,10 +117,12 @@ public class EditTaskViewModel extends ViewModel {
         this.categories.setValue(categories);
     }
 
-
-
     public LiveData<LocalDateTime> getSelectedDateTime() {
         return selectedDateTime;
+    }
+
+    public LiveData<LocalDateTime> getCreationDateTime() {
+        return creationDateTime;
     }
 
     public void clean() {
