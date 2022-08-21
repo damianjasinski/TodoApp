@@ -2,6 +2,7 @@ package com.example.weather.todoapp.view_models;
 
 import android.app.Notification;
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -29,6 +30,7 @@ public class EditTaskViewModel extends ViewModel {
     private MutableLiveData<Task> taskToEdit = new MutableLiveData<>();
     private MutableLiveData<String> taskName = new MutableLiveData<>();
     private MutableLiveData<String> taskDesc = new MutableLiveData<>();
+    private MutableLiveData<String> taskUri = new MutableLiveData<>();
     private MutableLiveData<Integer> chosenCategory = new MutableLiveData<>();
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     private MutableLiveData<LocalDateTime> selectedDateTime = new MutableLiveData<>();
@@ -60,12 +62,17 @@ public class EditTaskViewModel extends ViewModel {
         this.taskToEdit.postValue(taskToEdit);
         setTaskName(taskToEdit.getTitle());
         setTaskDesc(taskToEdit.getDesc());
+        setTaskUri(taskToEdit.getUri());
         setChosenCategory(RealmCategories.indexOf(taskToEdit.getCategory()));
         setSelectedDateTime(DateConverter.epochToDateTime(taskToEdit.getExecDateTimeEpoch()));
     }
 
     public void setSelectedDateTime(LocalDateTime selectedDateTime) {
         this.selectedDateTime.postValue(selectedDateTime);
+    }
+
+    public void setTaskUri(String taskUri) {
+        this.taskUri.setValue(taskUri);
     }
 
     public void setTaskName(String taskName) {
@@ -90,6 +97,10 @@ public class EditTaskViewModel extends ViewModel {
 
     public LiveData<String> getTaskDesc() {
         return taskDesc;
+    }
+
+    public LiveData<String> getTaskUri() {
+        return taskUri;
     }
 
     public LiveData<List<Category>> getCategories() {

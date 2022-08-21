@@ -2,6 +2,7 @@ package com.example.weather.todoapp.view_models;
 
 import android.app.Notification;
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import com.example.weather.todoapp.notification.NotificationBuilder;
 import com.example.weather.todoapp.notification.NotificationScheduler;
 import com.example.weather.todoapp.util.DateConverter;
 
+import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +37,7 @@ public class AddTaskViewModel extends ViewModel {
     private MutableLiveData<Integer> chosenCategory = new MutableLiveData<>();
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     private MutableLiveData<LocalDateTime> selectedDateTime = new MutableLiveData<>();
+    private MutableLiveData<Uri> attachmentUri = new MutableLiveData<>();
     RealmResults<Category> RealmCategories;
     private final Realm realm;
 
@@ -60,6 +63,10 @@ public class AddTaskViewModel extends ViewModel {
         this.taskDesc.setValue(taskDesc);
     }
 
+    public void setAttachmentUri(Uri uri) {
+        this.attachmentUri.setValue(uri);
+    }
+
     public void setChosenCategory(int categoryPosition) {
         this.chosenCategory.setValue(categoryPosition);
     }
@@ -72,6 +79,11 @@ public class AddTaskViewModel extends ViewModel {
         return taskDesc;
     }
 
+    public LiveData<Uri> getAttachmentUri() {
+        return attachmentUri;
+    }
+
+
     public LiveData<List<Category>> getCategories() {
         return categories;
     }
@@ -79,6 +91,8 @@ public class AddTaskViewModel extends ViewModel {
     public LiveData<Integer> getChosenCategory() {
         return chosenCategory;
     }
+
+
 
     public void setCategories(List<Category> categories) {
         this.categories.setValue(categories);
@@ -106,6 +120,7 @@ public class AddTaskViewModel extends ViewModel {
             Task task = realm.createObject(Task.class, nextId);
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
+            task.setUri(getAttachmentUri().getValue().toString());
 
             task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(zoneOffset));
             Category category = realm.where(Category.class).equalTo("name", categories.getValue().get(chosenCategory.getValue()).toString()).findFirst();
@@ -127,6 +142,7 @@ public class AddTaskViewModel extends ViewModel {
             finalIdCounter.setNotificationCounter(finalIdCounter.getNotificationCounter() + 1);
         });
     }
+
 
 
 }

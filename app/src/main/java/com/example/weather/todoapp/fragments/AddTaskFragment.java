@@ -1,12 +1,21 @@
 package com.example.weather.todoapp.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,12 +28,15 @@ import android.widget.Toast;
 import com.example.weather.todoapp.R;
 import com.example.weather.todoapp.databinding.FragmentAddTaskBinding;
 import com.example.weather.todoapp.util.DateConverter;
+import com.example.weather.todoapp.util.FileCopyClass;
 import com.example.weather.todoapp.view_models.AddTaskViewModel;
 import com.example.weather.todoapp.view_models.TasksViewModel;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,10 +46,12 @@ import java.time.ZoneOffset;
 
 public class AddTaskFragment extends Fragment {
 
+    private Uri imageUri;
     private ZoneOffset zoneOffset = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
     private FragmentAddTaskBinding binding;
     private TasksViewModel tasksViewModel;
     private AddTaskViewModel addTaskViewModel;
+    private Bitmap loadedImage;
     int chosenCategoryPos = -1;
 
     public AddTaskFragment() {
@@ -55,6 +69,7 @@ public class AddTaskFragment extends Fragment {
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,11 +90,23 @@ public class AddTaskFragment extends Fragment {
                 chosenCategoryPos = i;
             }
         });
+
+        //todo save uri in task model
+        getAttachmentURI();
         createTaskBtnInit();
         dateTimePickInit();
         addCategoryBtnInit();
         observeAddTaskVM();
         return root;
+    }
+
+    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
+        ParcelFileDescriptor parcelFileDescriptor =
+                getActivity().getContentResolver().openFileDescriptor(uri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        parcelFileDescriptor.close();
+        return image;
     }
 
     private void observeAddTaskVM() {
@@ -103,6 +130,11 @@ public class AddTaskFragment extends Fragment {
         addTaskViewModel.getSelectedDateTime().observe(getViewLifecycleOwner(), date -> {
             binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(date.toEpochSecond(zoneOffset)));
         });
+
+        addTaskViewModel.getAttachmentUri().observe(getViewLifecycleOwner(), uri -> {
+            binding.link.setText(uri.getPath());
+            imageUri = uri;
+        });
     }
 
     private void createTaskBtnInit() {
@@ -110,6 +142,9 @@ public class AddTaskFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (validateFields()) {
+                    FileCopyClass fileCopyClass = new FileCopyClass(getContext());
+                    addTaskViewModel.setAttachmentUri(fileCopyClass.copyAttachmenToExternal(imageUri));
+
                     addTaskViewModel.setTaskName(binding.taskNameView.getText().toString());
                     addTaskViewModel.setTaskDesc(binding.taskDescView.getText().toString());
                     if (chosenCategoryPos != -1) {
@@ -167,6 +202,47 @@ public class AddTaskFragment extends Fragment {
         });
     }
 
+    private void getAttachmentURI() {
+        ActivityResultLauncher<String> mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
+                new ActivityResultCallback<Uri>() {
+                    @Override
+                    public void onActivityResult(Uri uri) {
+                        Log.i("open", uri.getPath());
+                        try {
+                            loadedImage = getBitmapFromUri(uri);
+                            imageUri = uri;
+                            binding.link.setText(uri.toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+        binding.link.setOnClickListener(x -> {
+            try {
+                openImage(imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        binding.attachFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Pass in the mime type you'd like to allow the user to select
+                // as the input
+                mGetContent.launch("image/*");
+                binding.imageView.setImageBitmap(loadedImage);
+            }
+        });
+    }
+
+    private void openImage(Uri uri) throws IOException {
+        Intent openImage = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(openImage);
+    }
+
+
     private boolean validateFields() {
         boolean isOk = true;
         if (binding.taskNameView.getText().length() == 0) {
@@ -181,6 +257,10 @@ public class AddTaskFragment extends Fragment {
             Toast.makeText(requireActivity(), "Select category or add new if it's your first!", Toast.LENGTH_LONG).show();
             isOk = false;
             binding.categorySelectView.setError("Select one!");
+        }
+        if (addTaskViewModel.getSelectedDateTime() == null) {
+            isOk = false;
+            binding.datePickerView.setError("Select date and time!");
         }
         return isOk;
     }

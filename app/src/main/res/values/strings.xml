@@ -16,4 +16,6 @@
     <string name="select_date">Select task deadline</string>
     <string name="datetime">Datetime</string>
     <string name="update_task">Update</string>
+    <string name="add_attachment">Attach</string>
+    <string name="attachment">Attachment:</string>
 </resources>

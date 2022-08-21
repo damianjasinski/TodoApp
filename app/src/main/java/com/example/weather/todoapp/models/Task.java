@@ -14,6 +14,7 @@ public class Task extends RealmObject {
     private Long id;
     String title;
     String desc;
+    String uri;
     Long creationDateTimeEpoch;
     Long execDateTimeEpoch;
     Category category;
@@ -31,6 +32,14 @@ public class Task extends RealmObject {
 
     public Task() {
 
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public Long getId() {

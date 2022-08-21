@@ -1,7 +1,12 @@
 package com.example.weather.todoapp.fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -26,6 +31,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -76,6 +82,15 @@ public class EditTaskFragment extends Fragment {
                 chosenCategoryPos = i;
             }
         });
+
+        binding.link.setOnClickListener(x -> {
+            try {
+                openImage(Uri.parse(editTaskViewModel.getTaskUri().getValue()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
         observeEditTaskVM();
         addCategoryBtnInit();
         dateTimePickInit();
@@ -116,9 +131,12 @@ public class EditTaskFragment extends Fragment {
             binding.categorySelectView.setListSelection(chosenCategoryPosition);
         });
 
-
         editTaskViewModel.getSelectedDateTime().observe(getViewLifecycleOwner(), date -> {
             binding.datePickerView.setText(DateConverter.getPrettyLocalDateTime(date.toEpochSecond(zoneOffset)));
+        });
+
+        editTaskViewModel.getTaskUri().observe(getViewLifecycleOwner(), uri -> {
+            binding.link.setText(uri);
         });
     }
 
@@ -170,6 +188,13 @@ public class EditTaskFragment extends Fragment {
         });
     }
 
+
+    private void openImage(Uri uri) throws IOException {
+        Intent openImage = new Intent(Intent.ACTION_VIEW, uri);
+        openImage.setDataAndType(uri, "image/*");
+        startActivity(openImage);
+    }
+
     private boolean validateFields() {
         boolean isOk = true;
         if (binding.taskNameView.getText().length() == 0) {
@@ -184,6 +209,10 @@ public class EditTaskFragment extends Fragment {
             Toast.makeText(requireActivity(), "Select category or add new if it's your first!", Toast.LENGTH_LONG).show();
             isOk = false;
             binding.categorySelectView.setError("Select one!");
+        }
+        if (editTaskViewModel.getSelectedDateTime() == null) {
+            isOk = false;
+            binding.datePickerView.setError("Select date and time!");
         }
         return isOk;
     }
