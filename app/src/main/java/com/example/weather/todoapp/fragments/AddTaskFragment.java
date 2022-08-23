@@ -135,6 +135,9 @@ public class AddTaskFragment extends Fragment {
             binding.link.setText(uri.getPath());
             imageUri = uri;
         });
+        addTaskViewModel.isNotificationChecked().observe(getViewLifecycleOwner(), checked -> {
+            binding.addNotifyCheckbox.setChecked(checked);
+        });
     }
 
     private void createTaskBtnInit() {
@@ -151,10 +154,8 @@ public class AddTaskFragment extends Fragment {
                     if (chosenCategoryPos != -1) {
                         addTaskViewModel.setChosenCategory(chosenCategoryPos);
                     }
-                    addTaskViewModel.addNewTask();
-                    if (binding.addNotifyCheckbox.isChecked()) {
-                        addTaskViewModel.setNotification(requireActivity(), addTaskViewModel.getTaskName().getValue());
-                    }
+                    addTaskViewModel.setNotificationChecked(binding.addNotifyCheckbox.isChecked());
+                    addTaskViewModel.addNewTask(requireActivity());
                     addTaskViewModel.clean();
                     Navigation.findNavController(view).navigate(R.id.action_addTaskFragment_to_tasksFragment);
                 }

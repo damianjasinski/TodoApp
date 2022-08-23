@@ -91,6 +91,12 @@ public class EditTaskFragment extends Fragment {
             }
         });
 
+        binding.addNotifyCheckbox.setOnClickListener(x -> {
+            editTaskViewModel.isNotificationCbChanged = true;
+            editTaskViewModel.setNotificationChecked(binding.addNotifyCheckbox.isChecked());
+        });
+
+
         observeEditTaskVM();
         addCategoryBtnInit();
         dateTimePickInit();
@@ -139,6 +145,10 @@ public class EditTaskFragment extends Fragment {
             binding.createdAt.setText(binding.createdAt.getText() + " " + DateConverter.getPrettyLocalDateTime(dateTime.toEpochSecond(zoneOffset)));
         });
 
+        editTaskViewModel.isNotificationChecked().observe(getViewLifecycleOwner(), checked -> {
+            binding.addNotifyCheckbox.setChecked(checked);
+        });
+
         editTaskViewModel.getTaskUri().observe(getViewLifecycleOwner(), uri -> {
             binding.link.setText(uri);
         });
@@ -183,8 +193,7 @@ public class EditTaskFragment extends Fragment {
                     if (chosenCategoryPos != -1) {
                         editTaskViewModel.setChosenCategory(chosenCategoryPos);
                     }
-                    editTaskViewModel.updateTask();
-                    editTaskViewModel.setNotification(requireActivity(), editTaskViewModel.getTaskName().getValue());
+                    editTaskViewModel.updateTask(requireActivity());
                     editTaskViewModel.clean();
                     Navigation.findNavController(view).navigate(R.id.action_editTaskFragment_to_tasksFragment);
                 }

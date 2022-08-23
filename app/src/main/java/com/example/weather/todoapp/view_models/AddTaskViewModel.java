@@ -38,6 +38,7 @@ public class AddTaskViewModel extends ViewModel {
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     private MutableLiveData<LocalDateTime> selectedDateTime = new MutableLiveData<>();
     private MutableLiveData<Uri> attachmentUri = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isNotificationChecked = new MutableLiveData<>(true);
     RealmResults<Category> RealmCategories;
     private final Realm realm;
 
@@ -69,6 +70,14 @@ public class AddTaskViewModel extends ViewModel {
 
     public void setChosenCategory(int categoryPosition) {
         this.chosenCategory.setValue(categoryPosition);
+    }
+
+    public LiveData<Boolean> isNotificationChecked() {
+        return isNotificationChecked;
+    }
+
+    public void setNotificationChecked(Boolean checked) {
+        isNotificationChecked.postValue(checked);
     }
 
     public LiveData<String> getTaskName() {
@@ -112,7 +121,12 @@ public class AddTaskViewModel extends ViewModel {
         chosenCategory.setValue(-1);
     }
 
-    public void addNewTask() {
+    public void addNewTask(Context context) {
+        Long notificationId = 0L;
+        if (isNotificationChecked != null && isNotificationChecked.getValue()) {
+            notificationId = setNotification(context, taskName.getValue());
+        }
+        Long finalNotificationId = notificationId;
         realm.executeTransaction(transactionRealm -> {
             Number maxId = realm.where(Task.class).max("id");
             Long nextId = (maxId == null) ? 1 : maxId.longValue() + 1;
@@ -120,6 +134,8 @@ public class AddTaskViewModel extends ViewModel {
             if (getAttachmentUri().getValue() != null) {
                 task.setUri(getAttachmentUri().getValue().toString());
             }
+            task.setNotificationId(finalNotificationId);
+            task.setNotificationOn(isNotificationChecked.getValue());
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
             task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(zoneOffset));
@@ -130,7 +146,7 @@ public class AddTaskViewModel extends ViewModel {
         });
     }
 
-    public void setNotification(Context activity, String title) {
+    private long setNotification(Context activity, String title) {
         Notification notification = NotificationBuilder.getNotification(activity, title, DateConverter.getPrettyLocalDateTime(selectedDateTime.getValue().toEpochSecond(zoneOffset)));
         if (realm.where(NotificationIdCounter.class).findFirst() == null) {
             realm.executeTransaction(r -> {
@@ -142,6 +158,7 @@ public class AddTaskViewModel extends ViewModel {
         realm.executeTransaction(r -> {
             finalIdCounter.setNotificationCounter(finalIdCounter.getNotificationCounter() + 1);
         });
+        return finalIdCounter.getNotificationCounter();
     }
 
 

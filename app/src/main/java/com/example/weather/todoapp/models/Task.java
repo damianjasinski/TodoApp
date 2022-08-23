@@ -20,12 +20,21 @@ public class Task extends RealmObject {
     Category category;
     boolean isDone = false;
     boolean isNotificationOn = true;
+    Long notificationId;
 
     public Task(String title, String desc) {
     }
 
     public Task() {
 
+    }
+
+    public Long getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(Long notificationId) {
+        this.notificationId = notificationId;
     }
 
     public String getUri() {

@@ -2,8 +2,6 @@ package com.example.weather.todoapp.view_models;
 
 import android.app.Notification;
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -13,12 +11,14 @@ import com.example.weather.todoapp.models.Category;
 import com.example.weather.todoapp.models.NotificationIdCounter;
 import com.example.weather.todoapp.models.Task;
 import com.example.weather.todoapp.notification.NotificationBuilder;
+import com.example.weather.todoapp.notification.NotificationCancel;
 import com.example.weather.todoapp.notification.NotificationScheduler;
 import com.example.weather.todoapp.util.DateConverter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -35,9 +35,11 @@ public class EditTaskViewModel extends ViewModel {
     private MutableLiveData<List<Category>> categories = new MutableLiveData<>();
     private MutableLiveData<LocalDateTime> selectedDateTime = new MutableLiveData<>();
     private MutableLiveData<LocalDateTime> creationDateTime = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isNotificationChecked = new MutableLiveData<>();
     public RealmResults<Category> RealmCategories;
     private long taskId;
     private final Realm realm;
+    public boolean isNotificationCbChanged = true;
 
     {
         RealmConfiguration config = new RealmConfiguration.Builder()
@@ -67,6 +69,7 @@ public class EditTaskViewModel extends ViewModel {
         setChosenCategory(RealmCategories.indexOf(taskToEdit.getCategory()));
         setSelectedDateTime(DateConverter.epochToDateTime(taskToEdit.getExecDateTimeEpoch()));
         setCreationDateTime(DateConverter.epochToDateTime(taskToEdit.getCreationDateTimeEpoch()));
+        setNotificationChecked(taskToEdit.isNotificationOn());
     }
 
     public void setSelectedDateTime(LocalDateTime selectedDateTime) {
@@ -91,6 +94,14 @@ public class EditTaskViewModel extends ViewModel {
 
     public void setChosenCategory(int categoryPosition) {
         this.chosenCategory.setValue(categoryPosition);
+    }
+
+    public LiveData<Boolean> isNotificationChecked() {
+        return isNotificationChecked;
+    }
+
+    public void setNotificationChecked(Boolean checked) {
+        isNotificationChecked.postValue(checked);
     }
 
     public LiveData<Integer> getChosenCategory() {
@@ -131,20 +142,28 @@ public class EditTaskViewModel extends ViewModel {
         chosenCategory.setValue(-1);
     }
 
-    public void updateTask() {
+    public void updateTask(Context context) {
+        AtomicBoolean isDateChanged = new AtomicBoolean(false);
         realm.executeTransaction(transactionRealm -> {
             Task task = realm.where(Task.class).equalTo("id", taskId).findFirst();
+            if (task.getExecDateTimeEpoch() != selectedDateTime.getValue().toEpochSecond(zoneOffset)) {
+                isDateChanged.set(true);
+            }
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
-
             task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(zoneOffset));
             Category category = realm.where(Category.class).equalTo("name", categories.getValue().get(chosenCategory.getValue()).toString()).findFirst();
             task.setCategory(category);
-            System.out.println(category);
         });
+        if (isNotificationCbChanged && !isNotificationChecked.getValue()) {
+            cancelNotification(context, getTaskName().getValue());
+        }
+        else if (isDateChanged.get()) {
+            setNotification(context, taskName.getValue());
+        }
     }
 
-    public void setNotification(Context activity, String title) {
+    private void setNotification(Context activity, String title) {
         Notification notification = NotificationBuilder.getNotification(activity, title, DateConverter.getPrettyLocalDateTime(selectedDateTime.getValue().toEpochSecond(zoneOffset)));
         if (realm.where(NotificationIdCounter.class).findFirst() == null) {
             realm.executeTransaction(r -> {
@@ -156,5 +175,17 @@ public class EditTaskViewModel extends ViewModel {
         realm.executeTransaction(r -> {
             finalIdCounter.setNotificationCounter(finalIdCounter.getNotificationCounter() + 1);
         });
+    }
+
+    private void cancelNotification(Context activity, String title) {
+        Notification notification = NotificationBuilder.getNotification(activity, title, DateConverter.getPrettyLocalDateTime(selectedDateTime.getValue().toEpochSecond(zoneOffset)));
+        if (realm.where(NotificationIdCounter.class).findFirst() == null) {
+            realm.executeTransaction(r -> {
+                realm.createObject(NotificationIdCounter.class, "notifCounter");
+            });
+        }
+        NotificationIdCounter finalIdCounter = realm.where(NotificationIdCounter.class).findFirst();
+        NotificationCancel.cancelNotification(activity, notification, finalIdCounter.getNotificationCounter(), selectedDateTime.getValue().toEpochSecond(zoneOffset));
+
     }
 }
