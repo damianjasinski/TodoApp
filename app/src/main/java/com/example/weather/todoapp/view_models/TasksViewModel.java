@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel;
 import com.example.weather.todoapp.models.Category;
 import com.example.weather.todoapp.models.Task;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -22,6 +24,7 @@ public class TasksViewModel extends ViewModel {
 
     private MutableLiveData<List<Task>> tasks = new MutableLiveData<>(new ArrayList<>());
     private MutableLiveData<String> filteringCategory = new MutableLiveData<>("");
+    private ZoneOffset zoneOffset = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
     RealmResults<Task> RealmTasks;
     private final Realm realm;
 
@@ -61,6 +64,7 @@ public class TasksViewModel extends ViewModel {
         this.filteringCategory.setValue(filteringCategory);
     }
 
+
 //    public List<Task> getFilteredTasks() {
 //        return RealmTasks.stream().filter(task -> task.getCategory().getName().equals(filteringCategory.getValue())).collect(Collectors.toList());
 //    }
@@ -69,5 +73,12 @@ public class TasksViewModel extends ViewModel {
         this.tasks.setValue(tasks);
     }
 
+    public void hideOutdated() {
+        setTasks(getTasks().getValue().stream().filter(task -> task.getExecDateTimeEpoch() > LocalDateTime.now().toEpochSecond(zoneOffset)).collect(Collectors.toList()));
+    }
+
+    public void showOutdated() {
+        setFilteringCategory(getFilteringCategory().getValue());
+    }
 
 }

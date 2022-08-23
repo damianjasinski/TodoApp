@@ -168,8 +168,8 @@ public class EditTaskFragment extends Fragment {
                 MaterialTimePicker timePicker =
                         new MaterialTimePicker.Builder()
                                 .setTimeFormat(TimeFormat.CLOCK_24H)
-                                .setHour(12)
-                                .setMinute(00)
+                                .setHour(editTaskViewModel.getSelectedDateTime().getValue().getHour())
+                                .setMinute(editTaskViewModel.getSelectedDateTime().getValue().getMinute())
                                 .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
                                 .build();
                 timePicker.show(requireActivity().getSupportFragmentManager(), "tag");

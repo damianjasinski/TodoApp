@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -144,6 +145,7 @@ public class EditTaskViewModel extends ViewModel {
 
     public void updateTask(Context context) {
         AtomicBoolean isDateChanged = new AtomicBoolean(false);
+        AtomicReference<Long> idOfNotificationTocancel = new AtomicReference<>(0L);
         realm.executeTransaction(transactionRealm -> {
             Task task = realm.where(Task.class).equalTo("id", taskId).findFirst();
             if (task.getExecDateTimeEpoch() != selectedDateTime.getValue().toEpochSecond(zoneOffset)) {
@@ -152,11 +154,12 @@ public class EditTaskViewModel extends ViewModel {
             task.setTitle(taskName.getValue());
             task.setDesc(taskDesc.getValue());
             task.setExecDateTimeEpoch(selectedDateTime.getValue().toEpochSecond(zoneOffset));
+            idOfNotificationTocancel.set(task.getNotificationId());
             Category category = realm.where(Category.class).equalTo("name", categories.getValue().get(chosenCategory.getValue()).toString()).findFirst();
             task.setCategory(category);
         });
         if (isNotificationCbChanged && !isNotificationChecked.getValue()) {
-            cancelNotification(context, getTaskName().getValue());
+            cancelNotification(context, getTaskName().getValue(), idOfNotificationTocancel.get());
         }
         else if (isDateChanged.get()) {
             setNotification(context, taskName.getValue());
@@ -177,7 +180,7 @@ public class EditTaskViewModel extends ViewModel {
         });
     }
 
-    private void cancelNotification(Context activity, String title) {
+    private void cancelNotification(Context activity, String title, Long taskNotificatioNid) {
         Notification notification = NotificationBuilder.getNotification(activity, title, DateConverter.getPrettyLocalDateTime(selectedDateTime.getValue().toEpochSecond(zoneOffset)));
         if (realm.where(NotificationIdCounter.class).findFirst() == null) {
             realm.executeTransaction(r -> {
@@ -185,7 +188,7 @@ public class EditTaskViewModel extends ViewModel {
             });
         }
         NotificationIdCounter finalIdCounter = realm.where(NotificationIdCounter.class).findFirst();
-        NotificationCancel.cancelNotification(activity, notification, finalIdCounter.getNotificationCounter(), selectedDateTime.getValue().toEpochSecond(zoneOffset));
+        NotificationCancel.cancelNotification(activity, notification, taskNotificatioNid, selectedDateTime.getValue().toEpochSecond(zoneOffset));
 
     }
 }

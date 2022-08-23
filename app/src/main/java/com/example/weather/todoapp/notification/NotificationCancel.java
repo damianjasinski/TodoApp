@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class NotificationCancel {
 
-    public static void cancelNotification(Context activity, Notification notification, Integer notificationId, Long epochTime) {
+    public static void cancelNotification(Context activity, Notification notification, Long notificationId, Long epochTime) {
         Intent notificationIntent = new Intent(activity, MyNotificationPublisher.class);
         notificationIntent.putExtra("notificationId", notificationId);
         notificationIntent.putExtra("notification", notification);

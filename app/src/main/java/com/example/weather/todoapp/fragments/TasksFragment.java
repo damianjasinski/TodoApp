@@ -52,6 +52,16 @@ public class TasksFragment extends Fragment {
                 case R.id.filter_action:
                     setupFilterDialog();
                     return true;
+                case R.id.hide_outdated:
+                    hideOutdatedTasks();
+                    binding.toolbar.getMenu().findItem(item.getItemId()).setVisible(false);
+                    binding.toolbar.getMenu().findItem(item.getItemId() + 1).setVisible(true);
+                    return true;
+                case R.id.show_outdated:
+                    showOutdatedTasks();
+                    binding.toolbar.getMenu().findItem(item.getItemId()).setVisible(false);
+                    binding.toolbar.getMenu().findItem(item.getItemId() - 1).setVisible(true);
+                    return true;
                 default:
                     return false;
             }
@@ -112,5 +122,12 @@ public class TasksFragment extends Fragment {
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void hideOutdatedTasks() {
+        viewModel.hideOutdated();
+    }
+    private void showOutdatedTasks() {
+        viewModel.showOutdated();
     }
 }

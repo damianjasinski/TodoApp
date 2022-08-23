@@ -20,4 +20,6 @@
     <string name="attachment">Attachment:</string>
     <string name="add_notify_1h_before">Add notify 1h before</string>
     <string name="created_at">Created at:</string>
+    <string name="hide_outdated">Hide outdated</string>
+    <string name="show_outdated">Show outdated</string>
 </resources>

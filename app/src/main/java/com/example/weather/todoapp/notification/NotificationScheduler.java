@@ -8,9 +8,17 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 public class NotificationScheduler {
 
+    private static ZoneOffset zoneOffset = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
+
     public static void scheduleNotification(Context activity, Notification notification, Integer notificationId, Long epochTime) {
+        if (epochTime < LocalDateTime.now().toEpochSecond(zoneOffset)) {
+            return;
+        }
         Intent notificationIntent = new Intent(activity, MyNotificationPublisher.class);
         notificationIntent.putExtra("notificationId", notificationId);
         notificationIntent.putExtra("notification", notification);
